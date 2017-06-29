@@ -32,6 +32,8 @@ module Carto
     has_many :automatic_geocodings, inverse_of: :table, class_name: Carto::AutomaticGeocoding,
                                     foreign_key: :table_id, dependent: :destroy
 
+    has_many :user_table_token, inverse_of: :table, class_name: Carto::UserTableToken
+
     # Disabled to avoid conflicting with the `tags` field. This relation is updated by ::Table.manage_tags.
     # TODO: We can remove both the `user_tables.tags` field and the `tags` table in favour of the canonical viz tags.
     # has_many :tags, foreign_key: :table_id
