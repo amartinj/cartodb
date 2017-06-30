@@ -73,3 +73,5 @@ doc/manual/build
 .vscode/
 /private_gears
 /dist
+#AFP server metafiles
+*.AppleDouble
