@@ -71,6 +71,9 @@ module Carto
         render_jsonp({ errors: ["row identified with #{params[:cartodb_id]} not found"] }, 404)
       end
 
+      def api_authorization_required
+        authenticate!(:user_table_token_api, :api_key, :api_authentication, :scope => CartoDB.extract_subdomain(request))
+        validate_session(current_user)
       end
 
       protected
