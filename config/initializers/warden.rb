@@ -2,7 +2,7 @@ require_dependency 'carto/user_authenticator'
 require_dependency 'carto/email_cleaner'
 
 Rails.configuration.middleware.use RailsWarden::Manager do |manager|
-  manager.default_strategies :password, :api_authentication
+  manager.default_strategies :password, :api_authentication, :user_table_token_api
   manager.failure_app = SessionsController
 end
 
@@ -26,6 +26,30 @@ class Warden::SessionSerializer
 
   def deserialize(username)
     ::User.filter(username: username).first
+  end
+end
+
+Warden::Strategies.add(:user_table_token_api) do
+  def valid?
+    params[:user_token].present?
+  end
+
+  # We don't want to store a session and send a response cookie
+  def store?
+    false
+  end                                                        
+
+  def authenticate!
+    begin
+      if (token = params[:user_token])
+        token = Carto::UserTableToken.where(value: token).first
+        user = token.table.user
+        return success!(Carto::User.new(crypted_password: 'something'), :message => "Success") if user.username == CartoDB.extract_subdomain(request)
+      end
+        return fail!
+    rescue => error
+      return fail!
+    end
   end
 end
 
