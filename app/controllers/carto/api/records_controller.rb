@@ -1,16 +1,19 @@
 # encoding: UTF-8
 
 require_relative '../../../models/carto/permission'
+require_relative 'records_controller_auth'
 
 module Carto
   module Api
     class RecordsController < ::Api::ApplicationController
+      include RecordsControllerAuth
       ssl_required :show, :create, :update, :destroy
 
       REJECT_PARAMS = %w{ format controller action row_id requestId column_id
                           api_key table_id oauth_token oauth_token_secret api_key user_domain }.freeze
 
       before_filter :set_start_time
+      before_filter :load_user_token, only: [:show, :create, :update, :destroy]
       before_filter :load_user_table, only: [:show, :create, :update, :destroy]
       before_filter :read_privileges?, only: [:show]
       before_filter :write_privileges?, only: [:create, :update, :destroy]
@@ -68,23 +71,17 @@ module Carto
         render_jsonp({ errors: ["row identified with #{params[:cartodb_id]} not found"] }, 404)
       end
 
+      end
+
       protected
+
+      def load_user_token
+        return unless params[:user_token]
+        @user_token = Carto::UserTableToken.where(value: params[:user_token]).first
+      end
 
       def filtered_row
         params.reject { |k, _| REJECT_PARAMS.include?(k) }.symbolize_keys
-      end
-
-      def load_user_table
-        @user_table = Carto::Helpers::TableLocator.new.get_by_id_or_name(params[:table_id], current_user)
-        raise RecordNotFound unless @user_table
-      end
-
-      def read_privileges?
-        head(401) unless current_user && @user_table.visualization.is_viewable_by_user?(current_user)
-      end
-
-      def write_privileges?
-        head(401) unless current_user && @user_table.visualization.writable_by?(current_user)
       end
     end
   end
