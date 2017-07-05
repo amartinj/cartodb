@@ -367,6 +367,13 @@ CartoDB::Application.routes.draw do
     put    '(/user/:user_domain)(/u/:user_domain)/api/v1/tables/:table_id/records/:cartodb_id' => 'records#update',  as: :api_v1_tables_record_update,  constraints: { table_id: /[^\/]+/ }
     delete '(/user/:user_domain)(/u/:user_domain)/api/v1/tables/:table_id/records/:cartodb_id' => 'records#destroy', as: :api_v1_tables_record_destroy, constraints: { table_id: /[^\/]+/ }
 
+    # Token based api for table records
+    get    '(/user/:user_domain)(/u/:user_domain)/api/v1/tables/:table_id/tokens'             => 'record_tokens#index',    as: :api_v1_tables_record_tokens_index,   constraints: { table_id: /[^\/]+/ }
+    get    '(/user/:user_domain)(/u/:user_domain)/api/v1/tables/:table_id/tokens/:cartodb_id' => 'record_tokens#show',     as: :api_v1_tables_record_tokens_show,   constraints: { table_id: /[^\/]+/ }
+    post   '(/user/:user_domain)(/u/:user_domain)/api/v1/tables/:table_id/tokens'             => 'record_tokens#create',   as: :api_v1_tables_record_tokens_create, constraints: { table_id: /[^\/]+/ }
+    put    '(/user/:user_domain)(/u/:user_domain)/api/v1/tables/:table_id/tokens/:cartodb_id' => 'record_tokens#update',   as: :api_v1_tables_record_tokens_update,  constraints: { table_id: /[^\/]+/ }
+    delete '(/user/:user_domain)(/u/:user_domain)/api/v1/tables/:table_id/tokens/:cartodb_id' => 'record_tokens#destroy',  as: :api_v1_tables_record_tokens_destroy, constraints: { table_id: /[^\/]+/ }
+
     # Imports
     get    '(/user/:user_domain)(/u/:user_domain)/api/v1/imports'                          => 'imports#index',                       as: :api_v1_imports_index
     get    '(/user/:user_domain)(/u/:user_domain)/api/v1/imports/:id'                      => 'imports#show',                        as: :api_v1_imports_show
