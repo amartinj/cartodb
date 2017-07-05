@@ -16,6 +16,3 @@ migration(
       drop_table :user_table_tokens
     end
 )
-
-
-
