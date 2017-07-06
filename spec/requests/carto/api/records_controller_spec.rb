@@ -529,4 +529,66 @@ describe Carto::Api::RecordsController do
     end
   end
 
+  describe '#show Token without write permission tests' do
+
+    before(:all) do
+      @user = FactoryGirl.create(:valid_user)
+    end
+
+    before(:each) do
+      bypass_named_maps
+      delete_user_data @user
+      @table = create_table(user_id: @user.id)
+      @token_value = create_token('r')
+    end
+
+    after(:all) do
+      bypass_named_maps
+      @user.destroy
+    end
+
+    let(:params) { { table_id: @table.name, user_token: @token_value} }
+
+    it "Create a row" do
+      payload = {
+          name: "Name 123",
+          description: "The description"
+      }
+
+      post_json api_v1_tables_records_create_url(params.merge(payload)) do |response|
+        response.status.should == 404
+      end
+    end
+
+    it "Update a row" do
+      pk = @table.insert_row!(
+          name: String.random(10),
+          description: String.random(50),
+          the_geom: %{\{"type":"Point","coordinates":[0.966797,55.91843]\}}
+      )
+
+      payload = {
+          cartodb_id:   pk,
+          name:         "Name updated",
+          description:  "Description updated",
+          the_geom:     "{\"type\":\"Point\",\"coordinates\":[-3.010254,55.973798]}"
+      }
+
+      put_json api_v1_tables_record_update_url(params.merge(payload)) do |response|
+        response.status.should == 404
+      end
+    end
+
+    it "Remove a row" do
+      pk = @table.insert_row!(
+          name: String.random(10),
+          description: String.random(50),
+          the_geom: %{\{"type":"Point","coordinates":[#{Float.random_longitude},#{Float.random_latitude}]\}}
+      )
+
+      delete_json api_v1_tables_record_destroy_url(params.merge(cartodb_id: pk)) do |response|
+        response.status.should == 404
+      end
+    end
+  end
 end
