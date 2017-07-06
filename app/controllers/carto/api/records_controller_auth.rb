@@ -16,7 +16,9 @@ module Carto
       end
 
       def write_privileges?
-        return true if @user_token && @user_token.write_access
+        if @user_token
+          return @user_token.write_access || head(401)
+        end
         head(401) unless current_user && @user_table.visualization.writable_by?(current_user)
       end
     end
