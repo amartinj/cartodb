@@ -43,8 +43,8 @@ Warden::Strategies.add(:user_table_token_api) do
     begin
       if (token = params[:user_token])
         token = Carto::UserTableToken.where(value: token).first
-        user = token.table.user
-        return success!(Carto::User.new(crypted_password: 'something'), :message => "Success") if user.username == CartoDB.extract_subdomain(request)
+        user = ::User[token.table.user.id]
+        return success!(user) if user.username == CartoDB.extract_subdomain(request)
       end
         return fail!
     rescue => error
