@@ -42,6 +42,7 @@ module Carto
       protected
       
       def token_write_access?
+        return false unless params[:permission]
         permission = params[:permission].downcase
         raise "Invalid permission: #{permission}" unless permission.include? 'r'
         permission.include? 'w'
