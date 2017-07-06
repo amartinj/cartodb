@@ -10,7 +10,7 @@ module Carto
       ssl_required :show, :create, :update, :destroy
 
       REJECT_PARAMS = %w{ format controller action row_id requestId column_id
-                          api_key table_id oauth_token oauth_token_secret api_key user_domain }.freeze
+                          api_key table_id oauth_token oauth_token_secret api_key user_domain user_token }.freeze
 
       before_filter :set_start_time
       before_filter :load_user_token, only: [:show, :create, :update, :destroy]
