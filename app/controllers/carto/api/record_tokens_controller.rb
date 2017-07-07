@@ -5,7 +5,7 @@ module Carto
     class RecordTokensController < ::Api::ApplicationController
       include RecordsControllerAuth
 
-      rescue_from ArgumentError, with: :render_error
+      rescue_from ArgumentError, with: :render_400_error
 
       before_filter :set_start_time
       before_filter :load_user_table, only: [:index, :show, :create, :update, :destroy]
@@ -40,7 +40,7 @@ module Carto
         head :no_content
       end
 
-      def render_error(e)
+      def render_400_error(e)
         render_jsonp({errors: ["#{e}"]}, 400)
       end
 
