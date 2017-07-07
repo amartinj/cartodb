@@ -49,17 +49,17 @@ describe Carto::Api::RecordTokensController do
         token_id = response.body[:id]
       end
 
-      get_json api_v1_tables_record_tokens_show_url(params.merge(cartodb_id: token_id)) do |response|
+      get_json api_v1_tables_record_tokens_show_url(params.merge(token_id: token_id)) do |response|
         response.status.should be_success
         response.body[:permission].should == 'r'
         response.body[:id].should == token_id
       end
 
-      delete_json api_v1_tables_record_tokens_destroy_url(params.merge(cartodb_id: token_id)) do |response|
+      delete_json api_v1_tables_record_tokens_destroy_url(params.merge(token_id: token_id)) do |response|
         response.status.should == 204
       end
 
-      get_json api_v1_tables_record_tokens_show_url(params.merge(cartodb_id: token_id)) do |response|
+      get_json api_v1_tables_record_tokens_show_url(params.merge(token_id: token_id)) do |response|
         response.status.should == 404
       end
 
@@ -72,7 +72,7 @@ describe Carto::Api::RecordTokensController do
       post_json api_v1_tables_record_tokens_create_url(params.merge(payload)) do |response|
         response.status.should be_success
         response.body[:permission].should == payload[:permission]
-        payload[:cartodb_id] = response.body[:id]
+        payload[:token_id] = response.body[:id]
       end
 
       payload[:permission] = 'rw'
@@ -99,7 +99,7 @@ describe Carto::Api::RecordTokensController do
     end
 
     it 'Update a non-existing token' do
-      put_json api_v1_tables_record_tokens_update_url(params.merge(cartodb_id: MADEUP_TOKEN_ID)) do |response|
+      put_json api_v1_tables_record_tokens_update_url(params.merge(token_id: MADEUP_TOKEN_ID)) do |response|
         response.status.should == 404
       end
     end

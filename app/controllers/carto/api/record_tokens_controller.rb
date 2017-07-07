@@ -17,7 +17,7 @@ module Carto
       end
 
       def show
-        token = @user_table.tokens.find(params[:cartodb_id])
+        token = @user_table.tokens.find(params[:token_id])
         render_jsonp(token_as_array token)
       end
 
@@ -29,14 +29,14 @@ module Carto
       end
 
       def update
-        token = Carto::UserTableToken.find(params[:cartodb_id])
+        token = Carto::UserTableToken.find(params[:token_id])
         return render_jsonp({errors: ["token not found"]}, 404) unless token
         token.write_access = token_write_access?
         render_jsonp(token_as_array token)
       end
 
       def destroy
-        Carto::UserTableToken.destroy(params[:cartodb_id])
+        Carto::UserTableToken.destroy(params[:token_id])
         head :no_content
       end
 
