@@ -5,6 +5,8 @@ module Carto
     class RecordTokensController < ::Api::ApplicationController
       include RecordsControllerAuth
 
+      rescue_from ArgumentError, with: :render_error
+
       before_filter :set_start_time
       before_filter :load_user_table, only: [:index, :show, :create, :update, :destroy]
       before_filter :read_privileges?, only: [:index, :show]
@@ -28,7 +30,7 @@ module Carto
 
       def update
         token = Carto::UserTableToken.find(params[:cartodb_id])
-        head (404) unless token
+        return render_jsonp({errors: ["token not found"]}, 404) unless token
         token.write_access = token_write_access?
         render_jsonp(token_as_array token)
       end
@@ -38,12 +40,16 @@ module Carto
         head :no_content
       end
 
+      def render_error(e)
+        render_jsonp({errors: ["#{e}"]}, 400)
+      end
+
       protected
       
       def token_write_access?
         return false unless params[:permission]
         permission = params[:permission].downcase
-        raise "Invalid permission: #{permission}" unless permission.include? 'r'
+        raise ArgumentError, "Invalid permission: #{permission}" unless permission.include? 'r'
         permission.include? 'w'
       end
 
