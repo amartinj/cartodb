@@ -2,7 +2,7 @@ require_dependency 'carto/user_authenticator'
 require_dependency 'carto/email_cleaner'
 
 Rails.configuration.middleware.use RailsWarden::Manager do |manager|
-  manager.default_strategies :password, :api_authentication, :user_table_token_api
+  manager.default_strategies :password, :api_authentication
   manager.failure_app = SessionsController
 end
 
