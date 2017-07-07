@@ -1,4 +1,3 @@
-require_relative 'records_controller'
 require_relative 'records_controller_auth'
 
 module Carto
