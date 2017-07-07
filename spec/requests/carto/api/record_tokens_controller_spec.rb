@@ -3,6 +3,7 @@
 require_relative '../../../spec_helper'
 
 describe Carto::Api::RecordTokensController do
+  MADEUP_TOKEN_ID = 'b0329749-a29a-4e80-9277-6bb2c64bbb22'
   describe 'Token handling' do
 
     before(:all) do
@@ -88,6 +89,18 @@ describe Carto::Api::RecordTokensController do
         puts(response)
         response.status.should be_success
         response.body.should be_empty
+      end
+    end
+
+    it 'Insert a token with an invalid permission' do
+      post_json api_v1_tables_record_tokens_create_url(params.merge(permission: 'aaaa')) do |response|
+        response.status.should == 400
+      end
+    end
+
+    it 'Update a non-existing token' do
+      put_json api_v1_tables_record_tokens_update_url(params.merge(cartodb_id: MADEUP_TOKEN_ID)) do |response|
+        response.status.should == 404
       end
     end
   end
