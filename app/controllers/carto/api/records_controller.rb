@@ -17,6 +17,7 @@ module Carto
       before_filter :load_user_table, only: [:show, :create, :update, :destroy]
       before_filter :read_privileges?, only: [:show]
       before_filter :write_privileges?, only: [:create, :update, :destroy]
+      after_filter  :clean_cookie, only: [:show, :create, :update, :destroy]
 
       # This endpoint is not used by the editor but by users. Do not remove
       def show
@@ -54,13 +55,14 @@ module Carto
       end
 
       def destroy
+        user = get_current_user
         id = (params[:cartodb_id] =~ /\A\d+\z/ ? params[:cartodb_id] : params[:cartodb_id].to_s.split(','))
         schema_name = current_user.database_schema
-        if current_user.id != @user_table.service.owner.id
+        if user.id != @user_table.service.owner.id
           schema_name = @user_table.service.owner.database_schema
         end
 
-        current_user.in_database
+        user.in_database
                     .select
                     .from(@user_table.service.name.to_sym.qualify(schema_name.to_sym))
                     .where(cartodb_id: id)
@@ -73,10 +75,25 @@ module Carto
 
       def api_authorization_required
         authenticate!(:user_table_token_api, :api_key, :api_authentication, :scope => CartoDB.extract_subdomain(request))
-        validate_session(current_user)
+      end
+
+      def clean_cookie
+        if @user_token
+          puts("removing set-cookie from #{response.headers}")
+          response.headers['Set-Cookie'] = nil
+        end
       end
 
       protected
+
+      def get_current_user
+        if (@user_token)
+          ::User[@user_token.table.user.id]
+        else
+          current_user
+        end
+
+      end
 
       def load_user_token
         return unless params[:user_token]
